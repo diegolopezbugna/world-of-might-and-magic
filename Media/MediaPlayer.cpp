@@ -678,16 +678,16 @@ void MPlayer::HouseMovieLoop() {
 
         uint32_t *pix = (uint32_t*)tex->GetPixels(IMAGE_FORMAT_A8R8G8B8);
         unsigned int num_pixels = tex->GetWidth() * tex->GetHeight();
-        unsigned int num_pixels_bytes = num_pixels * IMAGE_FORMAT_BytesPerPixel(IMAGE_FORMAT_R8G8B8A8);
+        unsigned int num_pixels_bytes = num_pixels * IMAGE_FORMAT_BytesPerPixel(IMAGE_FORMAT_A8R8G8B8);
 
         memcpy(pix, buffer->GetData(), num_pixels_bytes);
-            uint32_t *dst = (uint32_t*)tex->GetPixels(IMAGE_FORMAT_R8G8B8A8);
+            //uint32_t *dst = (uint32_t*)tex->GetPixels(IMAGE_FORMAT_R8G8B8A8);
 
             // real dodgy conversion to update other pixels
-            for (unsigned int i = 0; i < num_pixels; ++i) {
-                uint32_t p = pix[i];
-                dst[i] = ((p & 0xFF000000) | (p & 0x000000FF) << 16 | (p & 0x0000FF00) | (p & 0x00FF0000) >> 16);
-            }
+            //for (unsigned int i = 0; i < num_pixels; ++i) {
+           //     uint32_t p = pix[i];
+           //     dst[i] = ((p & 0xFF000000) | (p & 0x000000FF) << 16 | (p & 0x0000FF00) | (p & 0x00FF0000) >> 16);
+           // }
 
         // update texture
         render->Update_Texture(tex);
@@ -771,20 +771,20 @@ void MPlayer::PlayFullscreenMovie(const std::string &pFilename) {
 
         uint32_t *pix = (uint32_t*)tex->GetPixels(IMAGE_FORMAT_A8R8G8B8);
         unsigned int num_pixels = tex->GetWidth() * tex->GetHeight();
-        unsigned int num_pixels_bytes = num_pixels * IMAGE_FORMAT_BytesPerPixel(IMAGE_FORMAT_R8G8B8A8);
+        unsigned int num_pixels_bytes = num_pixels * IMAGE_FORMAT_BytesPerPixel(IMAGE_FORMAT_A8R8G8B8);
 
-        if (num_pixels_bytes == buffer->GetSize()/2) {
+        //if (num_pixels_bytes == buffer->GetSize()/2) {
             memcpy(pix, buffer->GetData(), num_pixels_bytes);
-            uint32_t *dst = (uint32_t*)tex->GetPixels(IMAGE_FORMAT_R8G8B8A8);
+         //   uint32_t *dst = (uint32_t*)tex->GetPixels(IMAGE_FORMAT_A8R8G8B8);
 
             // real dodgy conversion to update other pixels
-                for (unsigned int i = 0; i < num_pixels; ++i) {
-                    uint32_t p = pix[i];
-                    dst[i] = ((p & 0xFF000000) | (p & 0x000000FF) << 16 | (p & 0x0000FF00) | (p & 0x00FF0000) >> 16);
-                }
-        } else {
-            log("bad tiems");
-        }
+             //   for (unsigned int i = 0; i < num_pixels; ++i) {
+            //        uint32_t p = pix[i];
+            //        dst[i] = ((p & 0xFF000000) | (p & 0x000000FF) << 16 | (p & 0x0000FF00) | (p & 0x00FF0000) >> 16);
+            //    }
+       // } else {
+        //    log("bad tiems");
+       // }
 
         // update texture
         render->Update_Texture(tex);

@@ -73,7 +73,7 @@ class Render : public RenderBase {
     virtual void DrawBillboard_Indoor(SoftwareBillboard *pSoftBillboard,
                                       RenderBillboard *billboard);
     virtual void _4A4CC9_AddSomeBillboard(
-        struct stru6_stru1_indoor_sw_billboard *a1, int diffuse);
+        struct SpellFX_Billboard *a1, int diffuse);
     virtual void DrawBillboardList_BLV();
 
     virtual void DrawProjectile(float srcX, float srcY, float a3, float a4,

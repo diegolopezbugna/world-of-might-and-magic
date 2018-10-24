@@ -171,7 +171,7 @@ void RenderBase::DrawSpriteObjects_ODM() {
             bool visible = pIndoorCameraD3D->ViewClip(x, y, z, &view_x, &view_y, &view_z);
 
             if (visible) {
-                if (abs(view_x) >= abs(view_y)) {
+                //if (abs(view_x) >= abs(view_y)) {
                     int projected_x = 0;
                     int projected_y = 0;
                     pIndoorCameraD3D->Project(view_x, view_y, view_z, &projected_x, &projected_y);
@@ -209,7 +209,7 @@ void RenderBase::DrawSpriteObjects_ODM() {
                     assert(::uNumBillboardsToDraw < 500);
                     ++::uNumBillboardsToDraw;
                     ++uNumSpritesDrawnThisFrame;
-                }
+               // }
             }
         }
     }
@@ -356,9 +356,8 @@ void RenderBase::MakeParticleBillboardAndPush_BLV(SoftwareBillboard *a2,
                                                   Texture *texture,
                                                   unsigned int uDiffuse,
                                                   int angle) {
-    if (a2->screen_space_z == 0) {
-        return;
-    }
+    
+   
 
     unsigned int billboard_index = Billboard_ProbablyAddToListAndSortByZOrder(a2->screen_space_z);
     RenderBillboardD3D *billboard = &pBillboardRenderListD3D[billboard_index];
@@ -375,7 +374,7 @@ void RenderBase::MakeParticleBillboardAndPush_BLV(SoftwareBillboard *a2,
     float screenspace_projection_factor = a2->screenspace_projection_factor_x;
 
     float rhw = 1.f / a2->screen_space_z;
-    float z = 1.f - 1.f / (a2->screen_space_y * 0.061758894f);
+    float z = 1.f - 1.f / (a2->screen_space_z * 1000.f / pIndoorCameraD3D->GetFarClip());
 
     float acos = (float)cos(angle);
     float asin = (float)sin(angle);
@@ -433,11 +432,14 @@ void RenderBase::MakeParticleBillboardAndPush_BLV(SoftwareBillboard *a2,
     }
 }
 
-void RenderBase::MakeParticleBillboardAndPush_ODM(SoftwareBillboard *a2,
+void RenderBase::MakeParticleBillboardAndPush_ODM(SoftwareBillboard *a2, // same as above so remove
                                                   Texture *texture,
                                                   unsigned int uDiffuse,
                                                   int angle) {
-    unsigned int billboard_index = Billboard_ProbablyAddToListAndSortByZOrder(a2->screen_space_z);
+
+    __debugbreak();
+
+    /*unsigned int billboard_index = Billboard_ProbablyAddToListAndSortByZOrder(a2->screen_space_z);
     RenderBillboardD3D *billboard = &pBillboardRenderListD3D[billboard_index];
 
     billboard->opacity = RenderBillboardD3D::Opaque_1;
@@ -508,7 +510,7 @@ void RenderBase::MakeParticleBillboardAndPush_ODM(SoftwareBillboard *a2,
         billboard->pQuads[3].rhw = rhw;
         billboard->pQuads[3].texcoord.x = 1.0;
         billboard->pQuads[3].texcoord.y = 0.0;
-    }
+    }*/
 }
 
 HWLTexture *RenderBase::LoadHwlBitmap(const String &name) {

@@ -262,6 +262,24 @@ bool Vis::IsPointInsideD3DBillboard(RenderBillboardD3D *a1, float x, float y) {
     float drY = a1->pQuads[0].pos.y;
     float drH = a1->pQuads[1].pos.y - drY;
 
+
+
+    // for small items dont bother with the per pixel checks
+    if (abs(drH) < 5 || abs(drW) < 5) {
+        if (drW < 0) {  // sprite reversed
+            drX = a1->pQuads[3].pos.x;
+            drW = a1->pQuads[0].pos.x - drX;
+        };
+        if (x >= drX && x < (drW + drX) && y >= drY && y < (drH + drY)) {  // simple bounds check
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
+
+    
     Sprite *ownerSprite = nullptr;
     for (int i = 0; i < pSprites_LOD->uNumLoadedSprites; ++i) {
         if ((void *)pSprites_LOD->pHardwareSprites[i].texture == a1->texture) {
@@ -280,6 +298,7 @@ bool Vis::IsPointInsideD3DBillboard(RenderBillboardD3D *a1, float x, float y) {
     LODSprite *spriteHeader = ownerSprite->sprite_header;
 
     if (sy < 0 || sy >= spriteHeader->uHeight) return false;
+    if (sx < 0 || sx >= spriteHeader->uWidth) return false;
 
     return spriteHeader->bitmap[sy * spriteHeader->uWidth + sx] != 0;
 }
@@ -320,7 +339,13 @@ void Vis::PickIndoorFaces_Mouse(float fDepth, RenderVertexSoft *pRay,
                             v12->object_pid = PID(OBJECT_BModel, pFaceID);
                             v12->object_type = VisObjectType_Face;
                             ++*pNumPointers;
+                            //logger->Info(L"raypass");
                         }
+                        else {
+                           // __debugbreak();
+                            //logger->Info(L"rayfaile");
+                        }
+
                     }
                 }
 
@@ -631,6 +656,8 @@ bool Vis::CheckIntersectBModel(BLVFace *pFace, Vec3_short_ IntersectPoint,
 
     if (engine->config->show_picked_face)
         pFace->uAttributes |= FACE_PICKED;
+
+
     return true;
     /*
       int v5; // esi@10
@@ -1431,7 +1458,7 @@ bool Vis::DoesRayIntersectBillboard(float fDepth,
 
     signed int v40;  // [sp+108h] [bp+Ch]@17
 
-    static Vis_SelectionList Vis_static_stru_F91E10;
+    /*static*/ Vis_SelectionList Vis_static_stru_F91E10;
     Vis_static_stru_F91E10.uNumPointers = 0;
     v3 = render->pBillboardRenderListD3D[uD3DBillboardIdx].sParentBillboardID;
     if (v3 == -1) return false;
@@ -1488,51 +1515,51 @@ bool Vis::DoesRayIntersectBillboard(float fDepth,
         }
     }
 
-    if (v40 >= 4) {
-        if (uCurrentlyLoadedLevelType != LEVEL_Outdoor) return false;
-        t1_x =
-            render->pBillboardRenderListD3D[uD3DBillboardIdx].pQuads[0].pos.x;
-        t2_x =
-            render->pBillboardRenderListD3D[uD3DBillboardIdx].pQuads[3].pos.x;
+    //if (v40 >= 4) {
+    //    //if (uCurrentlyLoadedLevelType != LEVEL_Outdoor) return false;
+    //    t1_x =
+    //        render->pBillboardRenderListD3D[uD3DBillboardIdx].pQuads[0].pos.x;
+    //    t2_x =
+    //        render->pBillboardRenderListD3D[uD3DBillboardIdx].pQuads[3].pos.x;
 
-        t1_y =
-            render->pBillboardRenderListD3D[uD3DBillboardIdx].pQuads[0].pos.y;
-        t2_y =
-            render->pBillboardRenderListD3D[uD3DBillboardIdx].pQuads[1].pos.y;
-        if (t1_x > t2_x) {
-            swap_temp = t1_x;
-            t1_x = t2_x;
-            t2_x = swap_temp;
-        }
-        if (t1_y > t2_y)
-            test_y = t1_y;
-        else
-            test_y = t2_y;
+    //    t1_y =
+    //        render->pBillboardRenderListD3D[uD3DBillboardIdx].pQuads[0].pos.y;
+    //    t2_y =
+    //        render->pBillboardRenderListD3D[uD3DBillboardIdx].pQuads[1].pos.y;
+    //    if (t1_x > t2_x) {
+    //        swap_temp = t1_x;
+    //        t1_x = t2_x;
+    //        t2_x = swap_temp;
+    //    }
+    //    if (t1_y > t2_y)
+    //        test_y = t1_y;
+    //    else
+    //        test_y = t2_y;
 
-        Vis_static_stru_F91E10.uNumPointers = 0;
+    //    Vis_static_stru_F91E10.uNumPointers = 0;
 
-        test_x = (t2_x - t1_x) * 0.5;
-        if ((double)(pViewport->uScreen_TL_X) <= test_x &&
-            (double)pViewport->uScreen_BR_X >= test_x &&
-            (double)pViewport->uScreen_TL_Y <= test_y &&
-            (double)pViewport->uScreen_BR_Y >= test_y) {
-            CastPickRay(local_80, test_x, test_y, fDepth);
-            if (uCurrentlyLoadedLevelType == LEVEL_Indoor)
-                PickIndoorFaces_Mouse(fDepth, local_80, &Vis_static_stru_F91E10,
-                                      &vis_face_filter);
-            else
-                PickOutdoorFaces_Mouse(fDepth, local_80,
-                                       &Vis_static_stru_F91E10,
-                                       &vis_face_filter, false);
-            Vis_static_stru_F91E10.create_object_pointers();
-            sort_object_pointers(Vis_static_stru_F91E10.object_pointers, 0,
-                                 Vis_static_stru_F91E10.uNumPointers - 1);
-            if (!Vis_static_stru_F91E10.uNumPointers) return true;
-            if (Vis_static_stru_F91E10.object_pointers[0]->depth >
-                pBillboardRenderList[v3].screen_space_z)
-                return true;
-        }
-    }
+    //    test_x = (t2_x - t1_x) * 0.5;
+    //    if ((double)(pViewport->uScreen_TL_X) <= test_x &&
+    //        (double)pViewport->uScreen_BR_X >= test_x &&
+    //        (double)pViewport->uScreen_TL_Y <= test_y &&
+    //        (double)pViewport->uScreen_BR_Y >= test_y) {
+    //        CastPickRay(local_80, test_x, test_y, fDepth);
+    //        if (uCurrentlyLoadedLevelType == LEVEL_Indoor)
+    //            PickIndoorFaces_Mouse(fDepth, local_80, &Vis_static_stru_F91E10,
+    //                                  &vis_face_filter);
+    //        else
+    //            PickOutdoorFaces_Mouse(fDepth, local_80,
+    //                                   &Vis_static_stru_F91E10,
+    //                                   &vis_face_filter, false);
+    //        Vis_static_stru_F91E10.create_object_pointers();
+    //        sort_object_pointers(Vis_static_stru_F91E10.object_pointers, 0,
+    //                             Vis_static_stru_F91E10.uNumPointers - 1);
+    //        if (!Vis_static_stru_F91E10.uNumPointers) return true;
+    //        if (Vis_static_stru_F91E10.object_pointers[0]->depth >
+    //            pBillboardRenderList[v3].screen_space_z)
+    //            return true;
+    //    }
+    //}
     return false;
 }
 // F93E18: using guessed type char static_byte_F93E18_init;
